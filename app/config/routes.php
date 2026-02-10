@@ -16,7 +16,7 @@ use flight\net\Router;
 $router->group('', function(Router $router) use ($app) {
 
 	// Redirection vers la page de login
-	$router->get('/', function () { Flight::redirect('/login'); });
+	$router->get('/', function () { Flight::redirect('/user/login'); });
 
 	// Routes d'authentification
 	$authController = new AuthController($app);
@@ -41,5 +41,10 @@ $router->group('', function(Router $router) use ($app) {
 	$router->post('/admin/objets/store', [$objetController, 'store']);
 	$router->get('/admin/objets/@id/categorie', [$objetController, 'editCategorie']);
 	$router->post('/admin/objets/categorie/update', [$objetController, 'updateCategorie']);
+
+	// routes utilisateur
+	$userController = new UserController($app);
+	$router->get('/user/login', [$userController, 'showLoginForm']);
+	$router->get('/user/inscription', [$userController, 'showRegistrationForm']);
 	
 }, [ SecurityHeadersMiddleware::class ]);
