@@ -117,4 +117,25 @@ class User
 
         return $user;
     }
+
+    public function register(string $username, string $password): bool
+    {
+
+        // Insérer le nouvel utilisateur dans la base de données
+        $this->db->runQuery(
+            'INSERT INTO users (username, password, type, created_at) VALUES (?, ?, ?, NOW())',
+            [$username, $password, 'user']
+        );
+
+        return true;
+    }
+    public function getLastInsert(): ?array
+    {
+        $statement = $this->db->runQuery(
+            'SELECT id, username, type, created_at FROM users ORDER BY id DESC LIMIT 1'
+        );
+        $user = $statement->fetch();
+        return $user ?: null;
+    }
+
 }

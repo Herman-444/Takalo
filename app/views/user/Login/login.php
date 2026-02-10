@@ -7,6 +7,12 @@
 </head>
 <body>
     
+    <?php if (!empty($error)): ?>
+                <div class="alert alert-error">
+                    <?= htmlspecialchars($error, ENT_QUOTES, 'UTF-8') ?>
+                </div>
+            <?php endif; ?>
+
     <h1>Login</h1>
     <form action="/user/login/authenticate" method="post">
         <label for="username">Username:</label>

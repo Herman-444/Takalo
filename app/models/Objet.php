@@ -24,8 +24,10 @@ class Objet
     public function getAll(): array
     {
         $statement = $this->db->runQuery(
-            'SELECT o.id, o.title, o.description, o.id_proprietaire, o.id_categorie, 
-                    o.prix_estime, o.qtt, o.created_at, c.name as categorie_name
+            'SELECT o.id, o.title, o.description, o.id_proprietaire, o.id_categorie,
+                    o.prix_estime, o.qtt, o.created_at AS objet_created_at,
+                    c.name AS categorie,
+                    (SELECT i.image_path FROM images i WHERE i.id_objet = o.id ORDER BY i.created_at ASC, i.id ASC LIMIT 1) AS first_image
              FROM objets o
              LEFT JOIN categories c ON o.id_categorie = c.id
              ORDER BY o.created_at DESC'
@@ -42,8 +44,10 @@ class Objet
     public function findById(int $id): ?array
     {
         $statement = $this->db->runQuery(
-            'SELECT o.id, o.title, o.description, o.id_proprietaire, o.id_categorie, 
-                    o.prix_estime, o.qtt, o.created_at, c.name as categorie_name
+            'SELECT o.id, o.title, o.description, o.id_proprietaire, o.id_categorie,
+                    o.prix_estime, o.qtt, o.created_at AS objet_created_at,
+                    c.name AS categorie,
+                    (SELECT i.image_path FROM images i WHERE i.id_objet = o.id ORDER BY i.created_at ASC, i.id ASC LIMIT 1) AS first_image
              FROM objets o
              LEFT JOIN categories c ON o.id_categorie = c.id
              WHERE o.id = ?',
@@ -71,6 +75,17 @@ class Objet
             [$proprietaireId]
         );
         return $statement->fetchAll() ?: [];
+    }
+
+    /**
+     * Alias pour compatibilité : récupérer tous les objets d'un utilisateur
+     *
+     * @param int $userId
+     * @return array
+     */
+    public function getAllByUserId(int $userId): array
+    {
+        return $this->getByProprietaire($userId);
     }
 
     /**
@@ -149,4 +164,29 @@ class Objet
         );
         return $statement->rowCount() > 0;
     }
+    
+    public function getAllImageByObjetId(int $objetId): array
+    {
+        $statement = $this->db->runQuery(
+            'SELECT id, image_path FROM images WHERE id_objet = ? ORDER BY created_at ASC',
+            [$objetId]
+        );
+        return $statement->fetchAll() ?: [];
+    }
+
+    public function getObjetForUser(int $userId): array
+    {
+        $statement = $this->db->runQuery(
+            'SELECT o.id, o.title, o.description, o.id_proprietaire, o.id_categorie,
+                    o.prix_estime, o.qtt, o.created_at AS objet_created_at,
+                    c.name AS categorie,
+                    (SELECT i.image_path FROM images i WHERE i.id_objet = o.id ORDER BY i.created_at ASC, i.id ASC LIMIT 1) AS first_image
+             FROM objets o
+             LEFT JOIN categories c ON o.id_categorie = c.id
+             WHERE o.id_proprietaire = ?',
+            [$userId]
+        );
+        return $statement->fetchAll() ?: [];
+    }
+
 }

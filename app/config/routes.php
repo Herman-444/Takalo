@@ -4,6 +4,8 @@ use app\controllers\AuthController;
 use app\controllers\CategoryController;
 use app\controllers\ObjetController;
 use app\middlewares\SecurityHeadersMiddleware;
+use app\controllers\UserController;
+use app\controllers\AccueilController;
 use flight\Engine;
 use flight\net\Router;
 
@@ -45,6 +47,19 @@ $router->group('', function(Router $router) use ($app) {
 	// routes utilisateur
 	$userController = new UserController($app);
 	$router->get('/user/login', [$userController, 'showLoginForm']);
+	$router->post('/user/login/authenticate', [$userController, 'login']);
 	$router->get('/user/inscription', [$userController, 'showRegistrationForm']);
-	
+	$router->post('/user/inscription/register', [$userController, 'register']);
+
+	// route accueil
+	$accueilController = new AccueilController($app);
+	$router->get('/accueil/accueil', [$accueilController, 'getAllObject']); 
+
+	$router->get('/carteObjet', [$accueilController, 'showCarteObjet']);
+	$router->get('/carteObjet/@id', [$accueilController, 'showCarteObjet']);
+
+	$router->get('/demandeEchange/@id', [$accueilController, 'showDemandeEchangeForm']);
+	$router->post('/demandeEchange', [$accueilController,'insertEchange']);
+
+
 }, [ SecurityHeadersMiddleware::class ]);
