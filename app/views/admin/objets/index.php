@@ -65,7 +65,7 @@
                                         <td><?= htmlspecialchars(substr($objet['description'] ?? '', 0, 50), ENT_QUOTES, 'UTF-8') ?><?= strlen($objet['description'] ?? '') > 50 ? '...' : '' ?></td>
                                         <td><?= $objet['prix_estime'] ? number_format($objet['prix_estime'], 2, ',', ' ') . ' €' : '-' ?></td>
                                         <td>
-                                            <?php if ($objet['categorie_name']): ?>
+                                            <?php if ($objet['categorie']): ?>
                                                 <span class="badge badge-primary"><?= htmlspecialchars($objet['categorie_name'], ENT_QUOTES, 'UTF-8') ?></span>
                                             <?php else: ?>
                                                 <span class="badge badge-secondary">Non catégorisé</span>

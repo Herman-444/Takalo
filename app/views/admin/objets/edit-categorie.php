@@ -36,7 +36,7 @@
                     <?php endif; ?>
                     <p class="objet-current-category">
                         Catégorie actuelle: 
-                        <?php if ($objet['categorie_name']): ?>
+                        <?php if ($objet['categorie']): ?>
                             <span class="badge badge-primary"><?= htmlspecialchars($objet['categorie_name'], ENT_QUOTES, 'UTF-8') ?></span>
                         <?php else: ?>
                             <span class="badge badge-secondary">Non catégorisé</span>
