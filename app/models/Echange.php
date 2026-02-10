@@ -15,6 +15,7 @@ class Echange
     public const STATUS_EN_ATTENTE = 1;
     public const STATUS_ACCEPTE = 2;
     public const STATUS_REFUSE = 3;
+    public const STATUS_ANNULEE = 4;
 
     public function __construct(PdoWrapper $db)
     {
@@ -150,5 +151,184 @@ class Echange
             [$statusId, $echangeId]
         );
         return $statement->rowCount() > 0;
+    }
+
+    /**
+     * Récupérer les échanges envoyés par un utilisateur (en tant que demandeur)
+     *
+     * @param int $userId
+     * @return array
+     */
+    public function getEchangesEnvoyes(int $userId): array
+    {
+        $statement = $this->db->runQuery(
+            'SELECT em.id, em.id_proprietaire, em.id_demandeur, em.status_id, 
+                    em.created_at, em.accepted_at,
+                    s.name AS status_name,
+                    u.username AS proprietaire_username,
+                    -- Objet demandé (celui du propriétaire)
+                    (SELECT o.title FROM echangeFille ef 
+                     JOIN objets o ON ef.id_objet = o.id 
+                     WHERE ef.id_echangeMere = em.id AND ef.id_proprietaire = em.id_proprietaire 
+                     LIMIT 1) AS objet_demande,
+                    -- Objet proposé (celui du demandeur)
+                    (SELECT o.title FROM echangeFille ef 
+                     JOIN objets o ON ef.id_objet = o.id 
+                     WHERE ef.id_echangeMere = em.id AND ef.id_proprietaire = em.id_demandeur 
+                     LIMIT 1) AS objet_propose
+             FROM echangeMere em
+             LEFT JOIN status s ON em.status_id = s.id
+             LEFT JOIN users u ON em.id_proprietaire = u.id
+             WHERE em.id_demandeur = ?
+             ORDER BY em.created_at DESC',
+            [$userId]
+        );
+        return $statement->fetchAll() ?: [];
+    }
+
+    /**
+     * Récupérer les échanges reçus par un utilisateur (en tant que propriétaire)
+     *
+     * @param int $userId
+     * @return array
+     */
+    public function getEchangesRecus(int $userId): array
+    {
+        $statement = $this->db->runQuery(
+            'SELECT em.id, em.id_proprietaire, em.id_demandeur, em.status_id, 
+                    em.created_at, em.accepted_at,
+                    s.name AS status_name,
+                    u.username AS demandeur_username,
+                    -- Objet demandé (le mien, celui du propriétaire)
+                    (SELECT o.title FROM echangeFille ef 
+                     JOIN objets o ON ef.id_objet = o.id 
+                     WHERE ef.id_echangeMere = em.id AND ef.id_proprietaire = em.id_proprietaire 
+                     LIMIT 1) AS objet_demande,
+                    -- Objet proposé (celui du demandeur)
+                    (SELECT o.title FROM echangeFille ef 
+                     JOIN objets o ON ef.id_objet = o.id 
+                     WHERE ef.id_echangeMere = em.id AND ef.id_proprietaire = em.id_demandeur 
+                     LIMIT 1) AS objet_propose
+             FROM echangeMere em
+             LEFT JOIN status s ON em.status_id = s.id
+             LEFT JOIN users u ON em.id_demandeur = u.id
+             WHERE em.id_proprietaire = ?
+             ORDER BY em.created_at DESC',
+            [$userId]
+        );
+        return $statement->fetchAll() ?: [];
+    }
+
+    /**
+     * Vérifier si un utilisateur peut modifier un échange
+     *
+     * @param int $echangeId
+     * @param int $userId
+     * @param string $role 'demandeur' ou 'proprietaire'
+     * @return bool
+     */
+    public function canUserModifyEchange(int $echangeId, int $userId, string $role = 'both'): bool
+    {
+        $echange = $this->findById($echangeId);
+        if ($echange === null) {
+            return false;
+        }
+
+        // Seuls les échanges en attente peuvent être modifiés
+        if ((int) $echange['status_id'] !== self::STATUS_EN_ATTENTE) {
+            return false;
+        }
+
+        if ($role === 'demandeur') {
+            return (int) $echange['id_demandeur'] === $userId;
+        } elseif ($role === 'proprietaire') {
+            return (int) $echange['id_proprietaire'] === $userId;
+        }
+
+        return (int) $echange['id_demandeur'] === $userId || (int) $echange['id_proprietaire'] === $userId;
+    }
+
+    /**
+     * Traiter l'échange lorsqu'il est accepté
+     * Gère le transfert de propriété des objets selon les règles:
+     * - Si qtt échangée = qtt totale: transfert direct de propriété
+     * - Si qtt échangée < qtt totale: création nouvel objet + soustraction quantité
+     *
+     * @param int $echangeId
+     * @param Objet $objetModel
+     * @return bool
+     */
+    public function processEchangeAccepte(int $echangeId, Objet $objetModel): bool
+    {
+        try {
+            $this->db->exec('START TRANSACTION');
+
+            // Récupérer l'échange mère
+            $echange = $this->findById($echangeId);
+            if ($echange === null) {
+                $this->db->exec('ROLLBACK');
+                return false;
+            }
+
+            $idProprietaire = (int) $echange['id_proprietaire'];
+            $idDemandeur = (int) $echange['id_demandeur'];
+
+            // Récupérer les objets filles de l'échange
+            $echangeFilles = $this->getEchangeFilles($echangeId);
+
+            foreach ($echangeFilles as $fille) {
+                $objetId = (int) $fille['id_objet'];
+                $qttEchange = (int) $fille['qtt'];
+                $oldProprietaire = (int) $fille['id_proprietaire'];
+
+                // Déterminer le nouveau propriétaire
+                // Si l'ancien proprio est le propriétaire de l'échange, le nouveau est le demandeur
+                // Et vice versa
+                $newProprietaire = ($oldProprietaire === $idProprietaire) ? $idDemandeur : $idProprietaire;
+
+                // Récupérer l'objet actuel
+                $objet = $objetModel->findById($objetId);
+                if ($objet === null) {
+                    error_log("Objet $objetId introuvable lors du traitement de l'échange $echangeId");
+                    continue;
+                }
+
+                $qttObjet = (int) $objet['qtt'];
+
+                if ($qttEchange >= $qttObjet) {
+                    // Cas 1: Quantité échangée >= quantité totale
+                    // Transfert direct de propriété
+                    $objetModel->changeProprietaire($objetId, $newProprietaire);
+                    error_log("Échange $echangeId: Objet $objetId transféré directement à l'utilisateur $newProprietaire");
+                } else {
+                    // Cas 2: Quantité échangée < quantité totale
+                    // Créer un nouvel objet pour le nouveau propriétaire
+                    $newObjetId = $objetModel->duplicateForNewOwner($objetId, $newProprietaire, $qttEchange);
+                    
+                    if ($newObjetId === false) {
+                        error_log("Erreur création nouvel objet pour l'échange $echangeId");
+                        $this->db->exec('ROLLBACK');
+                        return false;
+                    }
+
+                    // Soustraire la quantité de l'objet original
+                    $newQtt = $qttObjet - $qttEchange;
+                    $objetModel->updateQuantite($objetId, $newQtt);
+                    
+                    error_log("Échange $echangeId: Nouvel objet $newObjetId créé (qtt: $qttEchange) pour utilisateur $newProprietaire. Objet $objetId mis à jour (qtt: $newQtt)");
+                }
+            }
+
+            // Mettre à jour le statut de l'échange
+            $this->updateStatus($echangeId, self::STATUS_ACCEPTE);
+
+            $this->db->exec('COMMIT');
+            return true;
+
+        } catch (\Exception $e) {
+            $this->db->exec('ROLLBACK');
+            error_log('Erreur traitement échange accepté: ' . $e->getMessage());
+            return false;
+        }
     }
 }

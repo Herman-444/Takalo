@@ -189,4 +189,126 @@ class Objet
         return $statement->fetchAll() ?: [];
     }
 
+    /**
+     * Ajouter une image à un objet
+     * 
+     * @param int $objetId
+     * @param string $imagePath
+     * @return int|false
+     */
+    public function addImage(int $objetId, string $imagePath): int|false
+    {
+        $this->db->runQuery(
+            'INSERT INTO images (id_objet, image_path) VALUES (?, ?)',
+            [$objetId, $imagePath]
+        );
+        return (int) $this->db->lastInsertId();
+    }
+
+    /**
+     * Récupérer une image par son ID
+     * 
+     * @param int $imageId
+     * @return array|null
+     */
+    public function getImageById(int $imageId): ?array
+    {
+        $statement = $this->db->runQuery(
+            'SELECT id, id_objet, image_path, created_at FROM images WHERE id = ?',
+            [$imageId]
+        );
+        $image = $statement->fetch();
+        return $image ?: null;
+    }
+
+    /**
+     * Supprimer une image par son ID
+     * 
+     * @param int $imageId
+     * @return bool
+     */
+    public function deleteImageById(int $imageId): bool
+    {
+        $statement = $this->db->runQuery(
+            'DELETE FROM images WHERE id = ?',
+            [$imageId]
+        );
+        return $statement->rowCount() > 0;
+    }
+
+    /**
+     * Supprimer toutes les images d'un objet
+     * 
+     * @param int $objetId
+     * @return bool
+     */
+    public function deleteAllImagesByObjetId(int $objetId): bool
+    {
+        $statement = $this->db->runQuery(
+            'DELETE FROM images WHERE id_objet = ?',
+            [$objetId]
+        );
+        return $statement->rowCount() >= 0;
+    }
+
+    /**
+     * Changer le propriétaire d'un objet
+     * 
+     * @param int $objetId
+     * @param int $newProprietaireId
+     * @return bool
+     */
+    public function changeProprietaire(int $objetId, int $newProprietaireId): bool
+    {
+        $statement = $this->db->runQuery(
+            'UPDATE objets SET id_proprietaire = ? WHERE id = ?',
+            [$newProprietaireId, $objetId]
+        );
+        return $statement->rowCount() > 0;
+    }
+
+    /**
+     * Mettre à jour la quantité d'un objet
+     * 
+     * @param int $objetId
+     * @param int $newQtt
+     * @return bool
+     */
+    public function updateQuantite(int $objetId, int $newQtt): bool
+    {
+        $statement = $this->db->runQuery(
+            'UPDATE objets SET qtt = ? WHERE id = ?',
+            [$newQtt, $objetId]
+        );
+        return $statement->rowCount() >= 0;
+    }
+
+    /**
+     * Dupliquer un objet avec un nouveau propriétaire et une quantité spécifique
+     * 
+     * @param int $objetId L'ID de l'objet à dupliquer
+     * @param int $newProprietaireId Le nouveau propriétaire
+     * @param int $qtt La quantité pour le nouvel objet
+     * @return int|false L'ID du nouvel objet créé
+     */
+    public function duplicateForNewOwner(int $objetId, int $newProprietaireId, int $qtt): int|false
+    {
+        $objet = $this->findById($objetId);
+        if ($objet === null) {
+            return false;
+        }
+
+        // Créer le nouvel objet avec les mêmes attributs
+        $newObjetId = $this->create([
+            'title' => $objet['title'],
+            'description' => $objet['description'],
+            'id_proprietaire' => $newProprietaireId,
+            'id_categorie' => $objet['id_categorie'],
+            'prix_estime' => $objet['prix_estime'],
+            'qtt' => $qtt
+        ]);
+
+        return $newObjetId;
+    }
+
 }

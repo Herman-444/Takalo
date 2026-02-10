@@ -138,6 +138,23 @@ body {
     transform: translateY(0);
 }
 
+/* Bouton submit dans les formulaires */
+button.btn {
+    cursor: pointer;
+    outline: none;
+}
+
+button.btn-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+}
+
+button.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+}
+
 .btn-logout {
     background: #dc3545;
     color: white;
@@ -620,4 +637,184 @@ textarea:focus {
     .form-row {
         grid-template-columns: 1fr;
     }
+}
+
+/* ================================
+   User Objects Grid
+   ================================ */
+.objets-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 25px;
+    margin-top: 20px;
+}
+
+.objet-card {
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.objet-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.12);
+}
+
+.objet-card .objet-image {
+    width: 100%;
+    height: 180px;
+    overflow: hidden;
+    background: #f5f5f5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.objet-card .objet-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.objet-card .objet-image .no-image {
+    color: #999;
+    font-size: 0.9rem;
+}
+
+.objet-card .objet-info {
+    padding: 18px;
+}
+
+.objet-card .objet-info h3 {
+    margin: 0 0 10px 0;
+    font-size: 1.1rem;
+    color: #333;
+}
+
+.objet-card .objet-info .prix {
+    color: #667eea;
+    font-weight: 600;
+    margin: 8px 0;
+}
+
+.objet-card .objet-info .qtt {
+    color: #666;
+    font-size: 0.9rem;
+    margin: 5px 0;
+}
+
+.objet-card .objet-actions {
+    padding: 15px 18px;
+    border-top: 1px solid #eee;
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.objet-card .objet-actions .delete-form {
+    display: inline;
+}
+
+/* ================================
+   Image Management Grid
+   ================================ */
+.images-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 15px;
+    margin-top: 10px;
+}
+
+.image-item {
+    position: relative;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.image-item img {
+    width: 100%;
+    height: 120px;
+    object-fit: cover;
+    display: block;
+}
+
+.image-item form {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+}
+
+.btn-delete-image {
+    background: rgba(220, 53, 69, 0.9);
+    color: white;
+    border: none;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.3s;
+}
+
+.btn-delete-image:hover {
+    background: #c82333;
+}
+
+/* File Input Styling */
+.file-input {
+    padding: 12px;
+    border: 2px dashed #ddd;
+    border-radius: 8px;
+    background: #fafafa;
+    cursor: pointer;
+    transition: border-color 0.3s;
+    width: 100%;
+}
+
+.file-input:hover {
+    border-color: #667eea;
+}
+
+/* Form Container Heading */
+.form-container h3 {
+    margin: 0 0 15px 0;
+    color: #333;
+    font-size: 1.1rem;
+}
+
+/* Button Danger */
+.btn-danger {
+    background: #dc3545;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    transition: background 0.3s;
+}
+
+.btn-danger:hover {
+    background: #c82333;
+}
+
+/* Empty State */
+.empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+}
+
+.empty-state p {
+    color: #666;
+    font-size: 1.1rem;
+    margin-bottom: 20px;
 }

@@ -3,6 +3,8 @@
 use app\controllers\AuthController;
 use app\controllers\CategoryController;
 use app\controllers\ObjetController;
+use app\controllers\UserObjetController;
+use app\controllers\UserEchangeController;
 use app\middlewares\SecurityHeadersMiddleware;
 use app\controllers\UserController;
 use app\controllers\AccueilController;
@@ -36,15 +38,30 @@ $router->group('', function(Router $router) use ($app) {
 	$router->post('/admin/categories/store', [$categoryController, 'store']);
 	$router->post('/admin/categories/delete', [$categoryController, 'delete']);
 
-	// Routes admin - Objets
+	// Routes admin - Objets (consultation et modification catégorie uniquement)
 	$objetController = new ObjetController($app);
 	$router->get('/admin/objets', [$objetController, 'index']);
-	$router->get('/admin/objets/create', [$objetController, 'create']);
-	$router->post('/admin/objets/store', [$objetController, 'store']);
 	$router->get('/admin/objets/@id/categorie', [$objetController, 'editCategorie']);
 	$router->post('/admin/objets/categorie/update', [$objetController, 'updateCategorie']);
 
-	// routes utilisateur
+	// Routes utilisateur - Gestion des objets
+	$userObjetController = new UserObjetController($app);
+	$router->get('/user/objets', [$userObjetController, 'index']);
+	$router->get('/user/objets/create', [$userObjetController, 'create']);
+	$router->post('/user/objets/store', [$userObjetController, 'store']);
+	$router->get('/user/objets/@id/edit', [$userObjetController, 'edit']);
+	$router->post('/user/objets/update', [$userObjetController, 'update']);
+	$router->post('/user/objets/delete', [$userObjetController, 'delete']);
+	$router->post('/user/objets/image/delete', [$userObjetController, 'deleteImage']);
+
+	// Routes utilisateur - Gestion des échanges
+	$userEchangeController = new UserEchangeController($app);
+	$router->get('/user/echanges', [$userEchangeController, 'index']);
+	$router->post('/user/echanges/annuler', [$userEchangeController, 'annuler']);
+	$router->post('/user/echanges/accepter', [$userEchangeController, 'accepter']);
+	$router->post('/user/echanges/refuser', [$userEchangeController, 'refuser']);
+
+	// routes utilisateur - authentification
 	$userController = new UserController($app);
 	$router->get('/user/login', [$userController, 'showLoginForm']);
 	$router->post('/user/login/authenticate', [$userController, 'login']);

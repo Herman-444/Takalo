@@ -23,7 +23,7 @@
             <div class="dashboard-content">
                 <div class="page-header">
                     <h2>Gestion des objets</h2>
-                    <a href="/admin/objets/create" class="btn btn-primary">+ Ajouter un objet</a>
+                    <p class="info-text">Les objets sont créés par les utilisateurs. Vous pouvez modifier leur catégorie.</p>
                 </div>
 
                 <?php if (!empty($success_message)): ?>
@@ -65,8 +65,8 @@
                                         <td><?= htmlspecialchars(substr($objet['description'] ?? '', 0, 50), ENT_QUOTES, 'UTF-8') ?><?= strlen($objet['description'] ?? '') > 50 ? '...' : '' ?></td>
                                         <td><?= $objet['prix_estime'] ? number_format($objet['prix_estime'], 2, ',', ' ') . ' €' : '-' ?></td>
                                         <td>
-                                            <?php if ($objet['categorie']): ?>
-                                                <span class="badge badge-primary"><?= htmlspecialchars($objet['categorie_name'], ENT_QUOTES, 'UTF-8') ?></span>
+                                            <?php if (!empty($objet['categorie'])): ?>
+                                                <span class="badge badge-primary"><?= htmlspecialchars($objet['categorie'], ENT_QUOTES, 'UTF-8') ?></span>
                                             <?php else: ?>
                                                 <span class="badge badge-secondary">Non catégorisé</span>
                                             <?php endif; ?>
