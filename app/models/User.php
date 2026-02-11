@@ -16,6 +16,19 @@ class User
         $this->db = $db;
     }
 
+    public function getAllUsers(): array
+    {
+        $statement = $this->db->runQuery('SELECT id, username, type, created_at FROM users WHERE type != "admin" ORDER BY created_at DESC');
+        return $statement->fetchAll();
+    }
+
+    public function countUsers(): int
+    {
+        $statement = $this->db->runQuery('SELECT COUNT(*) AS count FROM users WHERE type != "admin"');
+        $result = $statement->fetch();
+        return (int)($result['count'] ?? 0);
+    }
+
     /**
      * Trouver un utilisateur par son nom d'utilisateur
      * 

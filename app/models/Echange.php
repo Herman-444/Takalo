@@ -331,4 +331,55 @@ class Echange
             return false;
         }
     }
+
+    public function getHistoriqueEchangeByObjetId(int $objetId): array
+    {
+        $statement = $this->db->runQuery(
+            'SELECT v.*, 
+                    u_prop.username AS proprietaire_username,
+                    u_dem.username AS demandeur_username,
+                    o.title AS objet_title,
+                    o.description AS objet_description,
+                    o.prix_estime AS objet_prix
+            FROM view_echange_Mere_Fille v
+            LEFT JOIN users u_prop ON v.proprietaire_id = u_prop.id
+            LEFT JOIN users u_dem ON v.demandeur_id = u_dem.id
+            LEFT JOIN objets o ON v.objet_id = o.id
+            WHERE v.objet_id = ?
+            ORDER BY v.echange_created_at DESC',
+            [$objetId]
+        );
+
+        return $statement->fetchAll() ?: [];
+    }
+
+    /**
+     * Récupérer les échanges dans une plage de dates
+     *
+     * @param string $dateMin Date au format Y-m-d
+     * @param string $dateMax Date au format Y-m-d
+     * @return array
+     */
+    public function getEchangesByDateRange(string $dateMin, string $dateMax): array
+    {
+        $statement = $this->db->runQuery(
+            'SELECT v.*, 
+                    u_prop.username AS proprietaire_username,
+                    u_dem.username AS demandeur_username,
+                    o.title AS objet_title,
+                    o.description AS objet_description,
+                    o.prix_estime AS objet_prix
+            FROM view_echange_Mere_Fille v
+            LEFT JOIN users u_prop ON v.proprietaire_id = u_prop.id
+            LEFT JOIN users u_dem ON v.demandeur_id = u_dem.id
+            LEFT JOIN objets o ON v.objet_id = o.id
+            WHERE DATE(v.echange_created_at) BETWEEN ? AND ?
+            ORDER BY v.echange_created_at DESC',
+            [$dateMin, $dateMax]
+        );
+
+        return $statement->fetchAll() ?: [];
+    }
+
+
 }

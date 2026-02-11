@@ -17,21 +17,3 @@ FROM
 JOIN echangeFille ef ON em.id = ef.id_echangeMere
 JOIN users u ON em.id_proprietaire = u.id
 JOIN status s ON em.status_id = s.id;
-
-CREATE OR REPLACE VIEW view_objets_details AS
-SELECT
-    o.id AS objet_id,
-    o.title AS objet_title,
-    o.description AS objet_description,
-    o.id_proprietaire AS proprietaire_id,
-    o.created_at AS objet_created_at,
-    o.id_categorie AS categorie_id,
-    o.qtt AS quantity,
-    o.prix_estime AS prix_estime,
-    c.name AS categorie_name,
-    u.username AS proprietaire_username
-FROM
-    objets o
-JOIN categories c ON o.id_categorie = c.id
-JOIN users u ON o.id_proprietaire = u.id;     
-

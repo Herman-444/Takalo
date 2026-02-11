@@ -41,17 +41,17 @@
                         <p>Gérer les objets et leurs catégories</p>
                     </a>
                     
-                    <div class="card">
+                        <a href="/admin/utilisateurs" class="card card-link">
                         <div class="card-icon">👥</div>
                         <h3>Utilisateurs</h3>
                         <p>Gérer les utilisateurs du système</p>
-                    </div>
+                    </a>
                     
-                    <div class="card">
+                    <a href="/admin/echanges" class="card card-link">
                         <div class="card-icon">🔄</div>
                         <h3>Échanges</h3>
                         <p>Suivre les échanges en cours</p>
-                    </div>
+                    </a>
                 </div>
 
                 <div class="welcome-message">

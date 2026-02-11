@@ -1,30 +1,43 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login</title>
+    <title>Connexion - Takalo</title>
+    <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
-    
-    <?php if (!empty($error)): ?>
+    <div class="login-container">
+        <div class="login-card">
+            <div class="login-header">
+                <h1>Takalo</h1>
+                <p>Connectez-vous à votre compte</p>
+            </div>
+
+            <?php if (!empty($error)): ?>
                 <div class="alert alert-error">
                     <?= htmlspecialchars($error, ENT_QUOTES, 'UTF-8') ?>
                 </div>
             <?php endif; ?>
 
-    <h1>Login</h1>
-    <form action="/user/login/authenticate" method="post">
-        <label for="username">Username:</label>
-        <input type="text" id="username" name="username" required><br><br>
+            <form action="/user/login/authenticate" method="post" class="login-form">
+                <div class="form-group">
+                    <label for="username">Nom d'utilisateur</label>
+                    <input type="text" id="username" name="username" placeholder="Entrez votre nom d'utilisateur" required>
+                </div>
 
-        <label for="password">Password:</label>
-        <input type="password" id="password" name="password" required><br><br>
+                <div class="form-group">
+                    <label for="password">Mot de passe</label>
+                    <input type="password" id="password" name="password" placeholder="Entrez votre mot de passe" required>
+                </div>
 
-        <button type="submit">Login</button>
-    </form>
+                <button type="submit" class="btn btn-primary">Se connecter</button>
+            </form>
 
-    <p>Don't have an account? <a href="/user/inscription">Register here</a></p>
-
+            <div class="login-footer">
+                <p>Pas encore de compte ? <a href="/user/inscription" style="color: #667eea; font-weight: 600; text-decoration: none;">Inscrivez-vous ici</a></p>
+            </div>
+        </div>
+    </div>
 </body>
 </html>

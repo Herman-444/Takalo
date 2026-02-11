@@ -8,6 +8,7 @@ use app\controllers\UserEchangeController;
 use app\middlewares\SecurityHeadersMiddleware;
 use app\controllers\UserController;
 use app\controllers\AccueilController;
+use app\controllers\EchangeController;
 use flight\Engine;
 use flight\net\Router;
 
@@ -78,5 +79,14 @@ $router->group('', function(Router $router) use ($app) {
 	$router->get('/demandeEchange/@id', [$accueilController, 'showDemandeEchangeForm']);
 	$router->post('/demandeEchange', [$accueilController,'insertEchange']);
 
+	// route utilisateur Dashbord
+	$router->get('/admin/utilisateurs',[$userController,'AllUtilisateurs']);
+
+	// route gestion des échanges admin
+	$EchangeController = new EchangeController($app);
+	$router->get('/admin/echanges', [$EchangeController, 'getAllObjects']);
+
+	$router->get('/afficherHistoriqueEchange/@id', [$EchangeController, 'historiqueEchange']);
+	$router->get('/rechercherEchange', [$EchangeController, 'rechercherParDate']);
 
 }, [ SecurityHeadersMiddleware::class ]);

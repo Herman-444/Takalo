@@ -131,6 +131,23 @@ class UserController
 
     }
 
+    public function AllUtilisateurs(): void
+    {
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+
+        $users = $this->userModel->getAllUsers();
+        $nbrUsers = count($users);
+
+        $this->app->render('admin/utilisateur/utilisateurs', [
+            'users' => $users,
+            'nbrUsers' => $nbrUsers,
+            'username' => $_SESSION['username'] ?? 'Admin',
+            'csp_nonce' => $this->app->get('csp_nonce')
+        ]);
+    }
+
 }
 
 ?>
