@@ -23,6 +23,12 @@
                     </a>
                 </div>
             </div>
+            <div>
+                <h4 class="footer-heading">Auteur</h4>
+                <p>ETU-004024</p> 
+                <p>ETU-004111</p>
+                <p>ETU-004333</p>
+            </div>
 
             <div>
                 <h4 class="footer-heading">Navigation</h4>
@@ -43,17 +49,6 @@
                     <li><a href="/user/echanges">Suivre mes échanges</a></li>
                 </ul>
             </div>
-
-            <div>
-                <h4 class="footer-heading">Informations</h4>
-                <ul class="footer-links">
-                    <li><a href="#">À propos</a></li>
-                    <li><a href="#">Comment ça marche</a></li>
-                    <li><a href="#">Conditions d'utilisation</a></li>
-                    <li><a href="#">Contact</a></li>
-                </ul>
-            </div>
-        </div>
 
         <div class="footer-bottom">
             <p>&copy; <?= date('Y') ?> Takalo - Tous droits réservés. Plateforme d'échange d'objets.</p>
