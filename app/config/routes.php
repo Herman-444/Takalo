@@ -21,7 +21,7 @@ use flight\net\Router;
 $router->group('', function(Router $router) use ($app) {
 
 	// Redirection vers la page de login
-	$router->get('/', function () { Flight::redirect('/user/login'); });
+	$router->get('/', function () { Flight::redirect('/accueil/accueil'); });
 
 	// Routes d'authentification
 	$authController = new AuthController($app);
