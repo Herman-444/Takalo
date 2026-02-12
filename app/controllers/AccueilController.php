@@ -2,6 +2,7 @@
 
 namespace app\controllers;
 
+use app\models\Category;
 use app\models\Echange;
 use app\models\Objet;
 use flight\Engine;
@@ -11,31 +12,40 @@ class AccueilController
     private Engine $app;
     private Objet $objetModel;
     private Echange $echangeModel;
+    private Category $categoryModel;
 
     public function __construct(Engine $app)
     {
         $this->app = $app;
         $this->objetModel = new Objet($this->app->db());
         $this->echangeModel = new Echange($this->app->db());
+        $this->categoryModel = new Category($this->app->db());
     }
 
     public function getAllObject(): void
     {
-        $objets = $this->objetModel->getAll();
+        $categorieId = (int) ($this->app->request()->query->categorie ?? 0);
+        $search = trim((string) ($this->app->request()->query->search ?? ''));
+        $categories = $this->categoryModel->getAll();
 
-        if (empty($objets)) {
-            $this->app->render('accueil/accueil', [
-                'objets' => [],
-                'csp_nonce' => $this->app->get('csp_nonce')
-            ]);
-            return;
+        // Filtrage selon catégorie et recherche
+        if ($categorieId > 0 && $search !== '') {
+            $objets = $this->objetModel->searchByCategoryAndTitle($categorieId, $search);
+        } elseif ($categorieId > 0) {
+            $objets = $this->objetModel->getByCategorieId($categorieId);
+        } elseif ($search !== '') {
+            $objets = $this->objetModel->searchByTitle($search);
+        } else {
+            $objets = $this->objetModel->getAll();
         }
 
-         $this->app->render('accueil/accueil', [
+        $this->app->render('accueil/accueil', [
             'objets' => $objets,
+            'categories' => $categories,
+            'selectedCategorie' => $categorieId,
+            'search' => $search,
             'csp_nonce' => $this->app->get('csp_nonce')
         ]);
-
     }
 
 public function showCarteObjet(string $id = ''): void

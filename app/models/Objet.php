@@ -36,6 +36,73 @@ class Objet
     }
 
     /**
+     * Récupérer tous les objets d'une catégorie
+     * 
+     * @param int $categorieId
+     * @return array
+     */
+    public function getByCategorieId(int $categorieId): array
+    {
+        $statement = $this->db->runQuery(
+            'SELECT o.id, o.title, o.description, o.id_proprietaire, o.id_categorie,
+                    o.prix_estime, o.qtt, o.created_at AS objet_created_at,
+                    c.name AS categorie,
+                    (SELECT i.image_path FROM images i WHERE i.id_objet = o.id ORDER BY i.created_at ASC, i.id ASC LIMIT 1) AS first_image
+             FROM objets o
+             LEFT JOIN categories c ON o.id_categorie = c.id
+             WHERE o.id_categorie = ?
+             ORDER BY o.created_at DESC',
+            [$categorieId]
+        );
+        return $statement->fetchAll() ?: [];
+    }
+
+    /**
+     * Rechercher des objets par titre dans une catégorie donnée
+     * 
+     * @param int $categorieId
+     * @param string $search
+     * @return array
+     */
+    public function searchByCategoryAndTitle(int $categorieId, string $search): array
+    {
+        $statement = $this->db->runQuery(
+            'SELECT o.id, o.title, o.description, o.id_proprietaire, o.id_categorie,
+                    o.prix_estime, o.qtt, o.created_at AS objet_created_at,
+                    c.name AS categorie,
+                    (SELECT i.image_path FROM images i WHERE i.id_objet = o.id ORDER BY i.created_at ASC, i.id ASC LIMIT 1) AS first_image
+             FROM objets o
+             LEFT JOIN categories c ON o.id_categorie = c.id
+             WHERE o.id_categorie = ? AND o.title LIKE ?
+             ORDER BY o.created_at DESC',
+            [$categorieId, '%' . $search . '%']
+        );
+        return $statement->fetchAll() ?: [];
+    }
+
+    /**
+     * Rechercher des objets par titre (toutes catégories)
+     * 
+     * @param string $search
+     * @return array
+     */
+    public function searchByTitle(string $search): array
+    {
+        $statement = $this->db->runQuery(
+            'SELECT o.id, o.title, o.description, o.id_proprietaire, o.id_categorie,
+                    o.prix_estime, o.qtt, o.created_at AS objet_created_at,
+                    c.name AS categorie,
+                    (SELECT i.image_path FROM images i WHERE i.id_objet = o.id ORDER BY i.created_at ASC, i.id ASC LIMIT 1) AS first_image
+             FROM objets o
+             LEFT JOIN categories c ON o.id_categorie = c.id
+             WHERE o.title LIKE ?
+             ORDER BY o.created_at DESC',
+            ['%' . $search . '%']
+        );
+        return $statement->fetchAll() ?: [];
+    }
+
+    /**
      * Trouver un objet par son ID
      * 
      * @param int $id

@@ -199,6 +199,117 @@ session_start();
             color: #155724;
             border: 1px solid #c3e6cb;
         }
+
+        /* Filtre et recherche */
+        .filter-section {
+            background: white;
+            border-radius: 12px;
+            padding: 20px 30px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        }
+
+        .filter-section h2 {
+            font-size: 1.1rem;
+            color: #444;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .categories-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .category-btn {
+            padding: 8px 18px;
+            border-radius: 25px;
+            border: 2px solid #667eea;
+            background: white;
+            color: #667eea;
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .category-btn:hover {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        .category-btn.active {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        .search-form {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .search-input {
+            flex: 1;
+            padding: 12px 18px;
+            border: 2px solid #e1e5e9;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.3s;
+            background: #f8f9fa;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #667eea;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.15);
+        }
+
+        .search-btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .search-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .filter-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            padding: 12px 18px;
+            background: #e8eafc;
+            border-radius: 8px;
+            color: #444;
+            font-size: 0.95rem;
+        }
+
+        .filter-info a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .filter-info a:hover {
+            text-decoration: underline;
+        }
         
         @media (max-width: 768px) {
             .accueil-header {
@@ -234,6 +345,62 @@ session_start();
                 <?= htmlspecialchars($_SESSION['success_message'], ENT_QUOTES, 'UTF-8') ?>
             </div>
             <?php unset($_SESSION['success_message']); ?>
+        <?php endif; ?>
+
+        <!-- Filtre par catégorie et barre de recherche -->
+        <div class="filter-section">
+            <h2>Filtrer par catégorie</h2>
+            <div class="categories-list">
+                <a href="/accueil/accueil" class="category-btn <?= empty($selectedCategorie) ? 'active' : '' ?>">Toutes</a>
+                <?php if (!empty($categories)): ?>
+                    <?php foreach ($categories as $cat): 
+                        $catId = is_array($cat) ? ($cat['id'] ?? '') : ($cat->id ?? '');
+                        $catName = is_array($cat) ? ($cat['name'] ?? '') : ($cat->name ?? '');
+                    ?>
+                        <a href="/accueil/accueil?categorie=<?= htmlspecialchars($catId, ENT_QUOTES, 'UTF-8') ?>" 
+                           class="category-btn <?= (int)($selectedCategorie ?? 0) === (int)$catId ? 'active' : '' ?>">
+                            <?= htmlspecialchars($catName, ENT_QUOTES, 'UTF-8') ?>
+                        </a>
+                    <?php endforeach; ?>
+                <?php endif; ?>
+            </div>
+
+            <form class="search-form" method="GET" action="/accueil/accueil">
+                <?php if (!empty($selectedCategorie)): ?>
+                    <input type="hidden" name="categorie" value="<?= htmlspecialchars($selectedCategorie, ENT_QUOTES, 'UTF-8') ?>">
+                <?php endif; ?>
+                <input type="text" name="search" class="search-input" 
+                       placeholder="Rechercher un objet<?= !empty($selectedCategorie) ? ' dans cette catégorie' : '' ?>..." 
+                       value="<?= htmlspecialchars($search ?? '', ENT_QUOTES, 'UTF-8') ?>">
+                <button type="submit" class="search-btn">Rechercher</button>
+            </form>
+        </div>
+
+        <?php if (!empty($selectedCategorie) || !empty($search)): ?>
+            <div class="filter-info">
+                <span>
+                    <?php if (!empty($selectedCategorie)): ?>
+                        <?php 
+                            $currentCatName = '';
+                            if (!empty($categories)) {
+                                foreach ($categories as $cat) {
+                                    $cId = is_array($cat) ? ($cat['id'] ?? 0) : ($cat->id ?? 0);
+                                    if ((int)$cId === (int)$selectedCategorie) {
+                                        $currentCatName = is_array($cat) ? ($cat['name'] ?? '') : ($cat->name ?? '');
+                                        break;
+                                    }
+                                }
+                            }
+                        ?>
+                        Catégorie : <strong><?= htmlspecialchars($currentCatName, ENT_QUOTES, 'UTF-8') ?></strong>
+                    <?php endif; ?>
+                    <?php if (!empty($search)): ?>
+                        <?= !empty($selectedCategorie) ? ' — ' : '' ?>Recherche : "<strong><?= htmlspecialchars($search, ENT_QUOTES, 'UTF-8') ?></strong>"
+                    <?php endif; ?>
+                    (<?= count($objets) ?> résultat<?= count($objets) > 1 ? 's' : '' ?>)
+                </span>
+                <a href="/accueil/accueil">✕ Effacer les filtres</a>
+            </div>
         <?php endif; ?>
 
         <?php if (empty($objets)): ?>
