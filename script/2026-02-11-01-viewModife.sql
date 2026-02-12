@@ -17,3 +17,4 @@ FROM
 JOIN echangeFille ef ON em.id = ef.id_echangeMere
 JOIN users u ON em.id_proprietaire = u.id
 JOIN status s ON em.status_id = s.id;
+

@@ -73,7 +73,7 @@ class UserController
         $_SESSION['success_message'] = 'Connexion réussie ! Bienvenue ' . $user['username'] . '.';
 
         // Rediriger vers le dashboard admin
-        $this->app->redirect('/accueil/accueil');
+        $this->app->redirect('/accueil/accueil/idUser=' . $user['id']);
     }
 
     public function register(): void

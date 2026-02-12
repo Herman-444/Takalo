@@ -123,7 +123,7 @@ class AuthController
         session_destroy();
 
         // Rediriger vers la page de login
-        $this->app->redirect('/login');
+        $this->app->redirect('/accueil/accueil');
     }
 
     /**

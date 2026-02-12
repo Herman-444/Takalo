@@ -24,19 +24,30 @@ class AccueilController
 
     public function getAllObject(): void
     {
+        // Démarrer la session si ce n'est pas déjà fait
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+
         $categorieId = (int) ($this->app->request()->query->categorie ?? 0);
         $search = trim((string) ($this->app->request()->query->search ?? ''));
         $categories = $this->categoryModel->getAll();
+        
+        // Récupérer l'ID de l'utilisateur connecté depuis la session
+        $idUser = (int) ($_SESSION['user_id'] ?? 0);
+
+         // Debug
+         error_log("getAllObject: categorieId=$categorieId, search='$search', idUser=$idUser");
 
         // Filtrage selon catégorie et recherche
         if ($categorieId > 0 && $search !== '') {
-            $objets = $this->objetModel->searchByCategoryAndTitle($categorieId, $search);
+            $objets = $this->objetModel->searchByCategoryAndTitle($categorieId, $search, $idUser);
         } elseif ($categorieId > 0) {
-            $objets = $this->objetModel->getByCategorieId($categorieId);
+            $objets = $this->objetModel->getByCategorieId($categorieId, $idUser);
         } elseif ($search !== '') {
-            $objets = $this->objetModel->searchByTitle($search);
+            $objets = $this->objetModel->searchByTitle($search, $idUser);
         } else {
-            $objets = $this->objetModel->getAll();
+            $objets = $this->objetModel->getAllObjectWithoutowner($idUser);
         }
 
         $this->app->render('accueil/accueil', [

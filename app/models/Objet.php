@@ -27,33 +27,73 @@ class Objet
             'SELECT o.id, o.title, o.description, o.id_proprietaire, o.id_categorie,
                     o.prix_estime, o.qtt, o.created_at AS objet_created_at,
                     c.name AS categorie,
-                    (SELECT i.image_path FROM images i WHERE i.id_objet = o.id ORDER BY i.created_at ASC, i.id ASC LIMIT 1) AS first_image
+                    (SELECT i.image_path FROM images i WHERE i.id_objet = o.id ORDER BY i.created_at ASC, i.id ASC LIMIT 1) AS first_image,
+                    u.username AS nomProprietaire
              FROM objets o
              LEFT JOIN categories c ON o.id_categorie = c.id
+             JOIN users u ON u.id = o.id_proprietaire
              ORDER BY o.created_at DESC'
         );
         return $statement->fetchAll() ?: [];
     }
 
-    /**
-     * Récupérer tous les objets d'une catégorie
-     * 
-     * @param int $categorieId
-     * @return array
-     */
-    public function getByCategorieId(int $categorieId): array
-    {
+    public function getAllObjectWithoutowner($idUser):array {
+
         $statement = $this->db->runQuery(
             'SELECT o.id, o.title, o.description, o.id_proprietaire, o.id_categorie,
                     o.prix_estime, o.qtt, o.created_at AS objet_created_at,
                     c.name AS categorie,
-                    (SELECT i.image_path FROM images i WHERE i.id_objet = o.id ORDER BY i.created_at ASC, i.id ASC LIMIT 1) AS first_image
+                    (SELECT i.image_path FROM images i WHERE i.id_objet = o.id ORDER BY i.created_at ASC, i.id ASC LIMIT 1) AS first_image,
+                    u.username AS nomProprietaire
              FROM objets o
              LEFT JOIN categories c ON o.id_categorie = c.id
-             WHERE o.id_categorie = ?
+             JOIN users u ON u.id = o.id_proprietaire
+             WHERE o.id_proprietaire != ?
              ORDER BY o.created_at DESC',
-            [$categorieId]
+            [$idUser]
         );
+        return $statement->fetchAll() ?: [];
+
+    } 
+
+    /**
+     * Récupérer tous les objets d'une catégorie
+     * 
+     * @param int $categorieId
+     * @param int $excludeUserId
+     * @return array
+     */
+    public function getByCategorieId(int $categorieId, int $excludeUserId = 0): array
+    {
+        if ($excludeUserId > 0) {
+            $statement = $this->db->runQuery(
+                'SELECT o.id, o.title, o.description, o.id_proprietaire, o.id_categorie,
+                        o.prix_estime, o.qtt, o.created_at AS objet_created_at,
+                        c.name AS categorie,
+                        (SELECT i.image_path FROM images i WHERE i.id_objet = o.id ORDER BY i.created_at ASC, i.id ASC LIMIT 1) AS first_image,
+                        u.username AS nomProprietaire
+                 FROM objets o
+                 LEFT JOIN categories c ON o.id_categorie = c.id
+                 JOIN users u ON u.id = o.id_proprietaire
+                 WHERE o.id_categorie = ? AND o.id_proprietaire != ?
+                 ORDER BY o.created_at DESC',
+                [$categorieId, $excludeUserId]
+            );
+        } else {
+            $statement = $this->db->runQuery(
+                'SELECT o.id, o.title, o.description, o.id_proprietaire, o.id_categorie,
+                        o.prix_estime, o.qtt, o.created_at AS objet_created_at,
+                        c.name AS categorie,
+                        (SELECT i.image_path FROM images i WHERE i.id_objet = o.id ORDER BY i.created_at ASC, i.id ASC LIMIT 1) AS first_image,
+                        u.username AS nomProprietaire
+                 FROM objets o
+                 LEFT JOIN categories c ON o.id_categorie = c.id
+                 JOIN users u ON u.id = o.id_proprietaire
+                 WHERE o.id_categorie = ?
+                 ORDER BY o.created_at DESC',
+                [$categorieId]
+            );
+        }
         return $statement->fetchAll() ?: [];
     }
 
@@ -62,21 +102,40 @@ class Objet
      * 
      * @param int $categorieId
      * @param string $search
+     * @param int $excludeUserId
      * @return array
      */
-    public function searchByCategoryAndTitle(int $categorieId, string $search): array
+    public function searchByCategoryAndTitle(int $categorieId, string $search, int $excludeUserId = 0): array
     {
-        $statement = $this->db->runQuery(
-            'SELECT o.id, o.title, o.description, o.id_proprietaire, o.id_categorie,
-                    o.prix_estime, o.qtt, o.created_at AS objet_created_at,
-                    c.name AS categorie,
-                    (SELECT i.image_path FROM images i WHERE i.id_objet = o.id ORDER BY i.created_at ASC, i.id ASC LIMIT 1) AS first_image
-             FROM objets o
-             LEFT JOIN categories c ON o.id_categorie = c.id
-             WHERE o.id_categorie = ? AND o.title LIKE ?
-             ORDER BY o.created_at DESC',
-            [$categorieId, '%' . $search . '%']
-        );
+        if ($excludeUserId > 0) {
+            $statement = $this->db->runQuery(
+                'SELECT o.id, o.title, o.description, o.id_proprietaire, o.id_categorie,
+                        o.prix_estime, o.qtt, o.created_at AS objet_created_at,
+                        c.name AS categorie,
+                        (SELECT i.image_path FROM images i WHERE i.id_objet = o.id ORDER BY i.created_at ASC, i.id ASC LIMIT 1) AS first_image,
+                        u.username AS nomProprietaire
+                 FROM objets o
+                 LEFT JOIN categories c ON o.id_categorie = c.id
+                 JOIN users u ON u.id = o.id_proprietaire
+                 WHERE o.id_categorie = ? AND o.title LIKE ? AND o.id_proprietaire != ?
+                 ORDER BY o.created_at DESC',
+                [$categorieId, '%' . $search . '%', $excludeUserId]
+            );
+        } else {
+            $statement = $this->db->runQuery(
+                'SELECT o.id, o.title, o.description, o.id_proprietaire, o.id_categorie,
+                        o.prix_estime, o.qtt, o.created_at AS objet_created_at,
+                        c.name AS categorie,
+                        (SELECT i.image_path FROM images i WHERE i.id_objet = o.id ORDER BY i.created_at ASC, i.id ASC LIMIT 1) AS first_image,
+                        u.username AS nomProprietaire
+                 FROM objets o
+                 LEFT JOIN categories c ON o.id_categorie = c.id
+                 JOIN users u ON u.id = o.id_proprietaire
+                 WHERE o.id_categorie = ? AND o.title LIKE ?
+                 ORDER BY o.created_at DESC',
+                [$categorieId, '%' . $search . '%']
+            );
+        }
         return $statement->fetchAll() ?: [];
     }
 
@@ -84,21 +143,40 @@ class Objet
      * Rechercher des objets par titre (toutes catégories)
      * 
      * @param string $search
+     * @param int $excludeUserId
      * @return array
      */
-    public function searchByTitle(string $search): array
+    public function searchByTitle(string $search, int $excludeUserId = 0): array
     {
-        $statement = $this->db->runQuery(
-            'SELECT o.id, o.title, o.description, o.id_proprietaire, o.id_categorie,
-                    o.prix_estime, o.qtt, o.created_at AS objet_created_at,
-                    c.name AS categorie,
-                    (SELECT i.image_path FROM images i WHERE i.id_objet = o.id ORDER BY i.created_at ASC, i.id ASC LIMIT 1) AS first_image
-             FROM objets o
-             LEFT JOIN categories c ON o.id_categorie = c.id
-             WHERE o.title LIKE ?
-             ORDER BY o.created_at DESC',
-            ['%' . $search . '%']
-        );
+        if ($excludeUserId > 0) {
+            $statement = $this->db->runQuery(
+                'SELECT o.id, o.title, o.description, o.id_proprietaire, o.id_categorie,
+                        o.prix_estime, o.qtt, o.created_at AS objet_created_at,
+                        c.name AS categorie,
+                        (SELECT i.image_path FROM images i WHERE i.id_objet = o.id ORDER BY i.created_at ASC, i.id ASC LIMIT 1) AS first_image,
+                        u.username AS nomProprietaire
+                 FROM objets o
+                 LEFT JOIN categories c ON o.id_categorie = c.id
+                 JOIN users u ON u.id = o.id_proprietaire
+                 WHERE o.title LIKE ? AND o.id_proprietaire != ?
+                 ORDER BY o.created_at DESC',
+                ['%' . $search . '%', $excludeUserId]
+            );
+        } else {
+            $statement = $this->db->runQuery(
+                'SELECT o.id, o.title, o.description, o.id_proprietaire, o.id_categorie,
+                        o.prix_estime, o.qtt, o.created_at AS objet_created_at,
+                        c.name AS categorie,
+                        (SELECT i.image_path FROM images i WHERE i.id_objet = o.id ORDER BY i.created_at ASC, i.id ASC LIMIT 1) AS first_image,
+                        u.username AS nomProprietaire
+                 FROM objets o
+                 LEFT JOIN categories c ON o.id_categorie = c.id
+                 JOIN users u ON u.id = o.id_proprietaire
+                 WHERE o.title LIKE ?
+                 ORDER BY o.created_at DESC',
+                ['%' . $search . '%']
+            );
+        }
         return $statement->fetchAll() ?: [];
     }
 

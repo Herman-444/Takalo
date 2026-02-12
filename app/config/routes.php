@@ -71,7 +71,8 @@ $router->group('', function(Router $router) use ($app) {
 
 	// route accueil
 	$accueilController = new AccueilController($app);
-	$router->get('/accueil/accueil', [$accueilController, 'getAllObject']); 
+	$router->get('/accueil/accueil', [$accueilController, 'getAllObject']);
+	$router->get('/accueil/accueil/@idUser', [$accueilController, 'getAllObject']); 
 
 	$router->get('/carteObjet', [$accueilController, 'showCarteObjet']);
 	$router->get('/carteObjet/@id', [$accueilController, 'showCarteObjet']);

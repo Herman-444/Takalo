@@ -7,51 +7,43 @@
     <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
-    <div class="dashboard-container">
-        <header class="dashboard-header">
-            <div class="header-content">
-                <h1>Takalo - Administration</h1>
-                <nav class="header-nav">
-                    <span class="user-info">Bienvenue, <?= htmlspecialchars($username ?? 'Admin', ENT_QUOTES, 'UTF-8') ?></span>
-                    <a href="/admin/dashboard" class="btn btn-secondary">Dashboard</a>
-                    <a href="/logout" class="btn btn-logout">Déconnexion</a>
-                </nav>
+
+<?php include __DIR__ . '/../../partials/header.php'; ?>
+
+<div class="dashboard-layout">
+    <main class="dashboard-main">
+        <div class="container">
+            <div class="breadcrumb">
+                <a href="/admin/dashboard">Dashboard</a>
+                <span class="separator">/</span>
+                <a href="/admin/categories">Catégories</a>
+                <span class="separator">/</span>
+                <span class="current">Ajouter</span>
             </div>
-        </header>
 
-        <main class="dashboard-main">
-            <div class="dashboard-content">
-                <div class="page-header">
-                    <h2>Ajouter une catégorie</h2>
-                    <a href="/admin/categories" class="btn btn-secondary">← Retour à la liste</a>
-                </div>
-
-                <div class="form-container">
-                    <form method="POST" action="/admin/categories/store" class="admin-form">
-                        <div class="form-group">
-                            <label for="name">Nom de la catégorie</label>
-                            <input 
-                                type="text" 
-                                id="name" 
-                                name="name" 
-                                placeholder="Ex: Sport, Nourriture, Électronique..."
-                                required
-                                autofocus
-                            >
-                        </div>
-
-                        <div class="form-actions">
-                            <button type="submit" class="btn btn-primary">Créer la catégorie</button>
-                            <a href="/admin/categories" class="btn btn-secondary">Annuler</a>
-                        </div>
-                    </form>
-                </div>
+            <div class="page-header">
+                <h1 class="page-title">Ajouter une catégorie</h1>
+                <a href="/admin/categories" class="btn btn-secondary">← Retour à la liste</a>
             </div>
-        </main>
 
-        <footer class="dashboard-footer">
-            <p>&copy; <?= date('Y') ?> Takalo - Tous droits réservés</p>
-        </footer>
-    </div>
+            <div class="form-container">
+                <form method="POST" action="/admin/categories/store" class="admin-form">
+                    <div class="form-group">
+                        <label for="name">Nom de la catégorie</label>
+                        <input type="text" id="name" name="name" placeholder="Ex: Sport, Nourriture, Électronique..." required autofocus>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">Créer la catégorie</button>
+                        <a href="/admin/categories" class="btn btn-secondary">Annuler</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </main>
+</div>
+
+<?php include __DIR__ . '/../../partials/footer.php'; ?>
+
 </body>
 </html>
