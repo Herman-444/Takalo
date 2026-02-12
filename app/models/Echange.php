@@ -381,5 +381,14 @@ class Echange
         return $statement->fetchAll() ?: [];
     }
 
+    public function getEchangeEffectuer():array {
+
+        $statement = $this->db->runQuery(
+            'SELECT * FROM echangeMere WHERE status_id = 2'
+        );
+
+        return $statement->fetchAll() ?: [];
+
+    }
 
 }

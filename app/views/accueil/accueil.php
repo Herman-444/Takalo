@@ -124,10 +124,7 @@
                             <img src="/images/<?= htmlspecialchars($first_image, ENT_QUOTES, 'UTF-8') ?>" 
                                  alt="<?= htmlspecialchars($title, ENT_QUOTES, 'UTF-8') ?>">
                         <?php else: ?>
-                            <span class="no-image">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>
-                                Aucune image
-                            </span>
+                            <div class="dash-card-icon blue" style="width:100%;height:150px;border-radius:var(--radius);margin-bottom:12px;display:flex;align-items:center;justify-content:center;font-size:3rem;">📦</div>
                         <?php endif; ?>
 
                         <?php if (!empty($categorie)): ?>

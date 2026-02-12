@@ -25,9 +25,13 @@ class EchangeController
         }
 
         $objets = $this->objetModel->getAll();
+        $EchangeEffectuer = $this->echangeModel->getEchangeEffectuer();
+
+        $nbrechange = count($EchangeEffectuer);
 
         $this->app->render('admin/historique/echange', [
             'objets' => $objets,
+            'nbrEchange' => $nbrechange,
             'username' => $_SESSION['username'] ?? 'Admin',
             'csp_nonce' => $this->app->get('csp_nonce')
         ]);
@@ -60,11 +64,16 @@ class EchangeController
             return;
         }
 
+        // Calculer le nombre total d'échanges effectués
+        $EchangeEffectuer = $this->echangeModel->getEchangeEffectuer();
+        $nbrEchange = count($EchangeEffectuer);
+
         $echanges = $this->echangeModel->getHistoriqueEchangeByObjetId($idObjet);
 
         $this->app->render('admin/historique/echange', [
             'echanges' => $echanges,
             'objet_filtre' => $objet,
+            'nbrEchange' => $nbrEchange,
             'username' => $_SESSION['username'] ?? 'Admin',
             'csp_nonce' => $this->app->get('csp_nonce')
         ]);
@@ -111,11 +120,14 @@ class EchangeController
         }
 
         $echanges = $this->echangeModel->getEchangesByDateRange($dateMin, $dateMax);
+        $EchangeEffectuer = $this->echangeModel->getEchangeEffectuer();
+        $nbrEchange = count($EchangeEffectuer);
 
         $this->app->render('admin/historique/echange', [
             'echanges' => $echanges,
             'dateMin' => $dateMin,
             'dateMax' => $dateMax,
+            'nbrEchange' => $nbrEchange,
             'username' => $_SESSION['username'] ?? 'Admin',
             'csp_nonce' => $this->app->get('csp_nonce')
         ]);

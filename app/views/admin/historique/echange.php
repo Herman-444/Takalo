@@ -18,7 +18,7 @@
                 <span class="separator">/</span>
                 <span class="current">Échanges</span>
             </div>
-
+            
             <?php if (!empty($objet_filtre)): ?>
                 <div class="page-header">
                     <h1 class="page-title">Historique : <?= htmlspecialchars($objet_filtre['title']) ?></h1>
@@ -33,11 +33,20 @@
             <?php if (!empty($error)): ?>
                 <div class="alert alert-error"><?= htmlspecialchars($error, ENT_QUOTES, 'UTF-8') ?></div>
             <?php endif; ?>
-
+            
+            
             <!-- Date search form -->
             <?php if (empty($objet_filtre)): ?>
-            <div class="form-container mb-3">
-                <form action="/rechercherEchange" method="GET" class="admin-form">
+                
+                <div class="dashboard-cards">
+                    <div class="dash-card">
+                        <div class="dash-card-icon blue">📤</div>
+                        <h3>Total Echange Effectuer (accepte) </h3>
+                        <div class="stat-number"><?= htmlspecialchars($nbrEchange, ENT_QUOTES, 'UTF-8') ?></div>
+                    </div>
+                </div>
+                <div class="form-container mb-3">
+                    <form action="/rechercherEchange" method="GET" class="admin-form">
                     <div class="form-row">
                         <div class="form-group">
                             <label for="dateMin">Date minimum</label>
@@ -54,14 +63,15 @@
                 </form>
             </div>
             <?php endif; ?>
-
+            
             <?php if (!empty($objets)): ?>
+
                 <!-- Objects grid -->
                 <div class="dashboard-cards">
                     <?php foreach ($objets as $objet): ?>
                         <a href="/afficherHistoriqueEchange/<?= htmlspecialchars($objet['id']) ?>" class="dash-card">
                             <?php if (!empty($objet['first_image'])): ?>
-                                <img src="<?= htmlspecialchars($objet['first_image']) ?>" alt="" style="width:100%;height:150px;object-fit:cover;border-radius:var(--radius);margin-bottom:12px;">
+                                <img src="/images/<?= htmlspecialchars($objet['first_image']) ?>" alt="" style="width:100%;height:150px;object-fit:cover;border-radius:var(--radius);margin-bottom:12px;">
                             <?php else: ?>
                                 <div class="dash-card-icon blue" style="width:100%;height:150px;border-radius:var(--radius);margin-bottom:12px;display:flex;align-items:center;justify-content:center;font-size:3rem;">📦</div>
                             <?php endif; ?>
