@@ -63,6 +63,7 @@ class AccueilController
             'categories' => $categories,
             'selectedCategorie' => $categorieId,
             'search' => $search,
+            'idObjet' => $objetId,
             'csp_nonce' => $this->app->get('csp_nonce')
         ]);
     }
@@ -77,6 +78,7 @@ public function showCarteObjet(string $id = ''): void
         // Render a friendly error in the view instead of halting
         $this->app->render('accueil/carteObjet', [
             'error' => 'Identifiant d\'objet invalide.',
+            'idObjet' => $id,
             'csp_nonce' => $this->app->get('csp_nonce')
         ]);
         return;
@@ -86,6 +88,7 @@ public function showCarteObjet(string $id = ''): void
     if (!$objet) {
         $this->app->render('accueil/carteObjet', [
             'error' => 'Objet introuvable.',
+            'idObjet' => $id,
             'csp_nonce' => $this->app->get('csp_nonce')
         ]);
         return;
@@ -96,6 +99,7 @@ public function showCarteObjet(string $id = ''): void
     $this->app->render('accueil/carteObjet', [
         'objet' => $objet,
         'allImage' => $allImage,
+        'idObjet' => $id,
         'csp_nonce' => $this->app->get('csp_nonce')
     ]);
 } 
@@ -106,8 +110,11 @@ public function showDemandeEchangeForm(string $id = ''): void {
     $id = (int) $id;
     $idUser = (int) ($this->app->request()->query->iduser ?? 0);
 
+    // Récupérer un éventuel objet proposé (offered) passé en querystring pour pré-selection
+    $selectedOfferedId = (int) ($this->app->request()->query->offered_objet_id ?? 0);
+
     // Debug
-    error_log("showDemandeEchangeForm: id=$id, idUser=$idUser");
+    error_log("showDemandeEchangeForm: id=$id, idUser=$idUser, selectedOfferedId=$selectedOfferedId");
 
     $objetuser = $this->objetModel->getAllByUserId($idUser);
 
@@ -124,6 +131,7 @@ public function showDemandeEchangeForm(string $id = ''): void {
     $this->app->render('accueil/demandeEchange', [
         'objet' => $objet,
         'objetuser' => $objetuser,
+        'selectedOfferedId' => $selectedOfferedId,
         'csp_nonce' => $this->app->get('csp_nonce')
     ]);
 

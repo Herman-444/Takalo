@@ -53,6 +53,9 @@
             <?php if (!empty($selectedCategorie)): ?>
                 <input type="hidden" name="categorie" value="<?= htmlspecialchars($selectedCategorie, ENT_QUOTES, 'UTF-8') ?>">
             <?php endif; ?>
+            <?php if (!empty($idObjet)): ?>
+                <input type="hidden" name="objetId" value="<?= htmlspecialchars($idObjet, ENT_QUOTES, 'UTF-8') ?>">
+            <?php endif; ?>
             <div class="navbar-search" style="flex:1;max-width:none;">
                 <input type="text" name="search" placeholder="Rechercher un objet..." value="<?= htmlspecialchars($search ?? '', ENT_QUOTES, 'UTF-8') ?>">
                 <button type="submit">
@@ -133,7 +136,7 @@
 
                         <!-- Hover overlay -->
                         <div class="product-card-overlay">
-                            <a href="/demandeEchange/<?= urlencode($objetId) ?>?iduser=<?= urlencode($_SESSION['user_id'] ?? '') ?>" class="btn-exchange">
+                            <a href="/demandeEchange/<?= urlencode($objetId) ?>?iduser=<?= urlencode($_SESSION['user_id'] ?? '') ?><?= !empty($idObjet) ? '&amp;offered_objet_id=' . urlencode($idObjet) : '' ?>" class="btn-exchange">
                                 🔄 Demander Échange
                             </a>
                             <div class="product-card-actions">
