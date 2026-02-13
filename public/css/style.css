@@ -1236,6 +1236,22 @@ img {
     color: #92400e;
 }
 
+/* Percentage badge (positive -> green, negative -> red, zero -> neutral) */
+.percent-badge {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--white);
+    margin-left: 8px;
+    min-width: 44px;
+    text-align: center;
+}
+.percent-badge.positive { background: var(--success); }
+.percent-badge.negative { background: var(--danger); }
+.percent-badge.neutral  { background: var(--gray-400); color: var(--gray-900); }
+
 /* ================================
    Form Container (Admin)
    ================================ */
