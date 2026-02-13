@@ -482,7 +482,7 @@ class Objet
         return $objet['prix_estime'] * (1 + $pourcent / 100);
     }
 
-    public function getObjetsByPourcent($idObjet,$pourcent) : array {
+    public function getObjetsByPourcent($idObjet,$pourcent,$idUser) : array {
         $statement = $this->db->runQuery(
             'SELECT o.id, o.title, o.description, o.id_proprietaire, o.id_categorie,
                     o.prix_estime, o.qtt, o.created_at AS objet_created_at,
@@ -492,11 +492,13 @@ class Objet
              FROM objets o
              LEFT JOIN categories c ON o.id_categorie = c.id
              JOIN users u ON u.id = o.id_proprietaire
-             WHERE o.prix_estime BETWEEN ? AND ? AND o.id != ?',
+             WHERE o.prix_estime BETWEEN ? AND ? AND o.id != ? AND o.id_proprietaire != ?
+             ORDER BY o.created_at DESC',
             [
                 $this->getPrixMinPourcent($idObjet, $pourcent),
                 $this->getPrixMaxPourcent($idObjet, $pourcent),
-                $idObjet
+                $idObjet,
+                $idUser
             ]
         );
         return $statement->fetchAll() ?: [];

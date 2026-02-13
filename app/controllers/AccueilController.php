@@ -45,7 +45,7 @@ class AccueilController
 
         // Filtrage par pourcentage si les paramètres sont présents
         if ($objetId > 0 && in_array($pourcent, [10, 20])) {
-            $objets = $this->objetModel->getObjetsByPourcent($objetId, $pourcent);
+            $objets = $this->objetModel->getObjetsByPourcent($objetId, $pourcent, $idUser);
         } 
         // Filtrage selon catégorie et recherche
         elseif ($categorieId > 0 && $search !== '') {
