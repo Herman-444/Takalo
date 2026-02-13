@@ -74,10 +74,11 @@
                                 <?php 
                                 $use_id = is_array($objetuse) ? ($objetuse['id'] ?? '') : ($objetuse->id ?? ''); 
                                 $use_title = is_array($objetuse) ? ($objetuse['title'] ?? '') : ($objetuse->title ?? '');
+                                $pourcentage = (($prix * 100 ) / ($objetuse['prix_estime'] ?? ($objetuse->prix_estime ?? 1))) - 100;
                                 ?>
                                 <label class="radio-card">
                                     <input type="radio" name="offered_objet_id" value="<?= htmlspecialchars($use_id, ENT_QUOTES, 'UTF-8') ?>" required>
-                                    <span class="radio-card-content"><?= htmlspecialchars($use_title, ENT_QUOTES, 'UTF-8') ?></span>
+                                    <span class="radio-card-content"><?= htmlspecialchars($use_title, ENT_QUOTES, 'UTF-8') ?> </span> <?= round($pourcentage, 2) ?> %
                                     <input type="number" name="offered_qty_<?= htmlspecialchars($use_id, ENT_QUOTES, 'UTF-8') ?>" min="1" value="1" style="width:80px;">
                                 </label>
                             <?php endforeach; ?>

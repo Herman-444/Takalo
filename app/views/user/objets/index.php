@@ -52,6 +52,8 @@
                                     <?= $objet['prix_estime'] ? number_format($objet['prix_estime'], 2, ',', ' ') . ' €' : 'Prix non défini' ?>
                                 </p>
                                 <p class="qtt">Quantité: <?= (int) $objet['qtt'] ?></p>
+                                <br></br>
+                                <p> <a href="/accueil/accueil?objetId=<?= $objet['id'] ?>&pourcent=10"> +/- 10% </a>    -    <a href="/accueil/accueil?objetId=<?= $objet['id'] ?>&pourcent=20"> +/- 20% </a></p>
                             </div>
                             <div class="objet-actions">
                                 <a href="/user/objets/<?= $objet['id'] ?>/edit" class="btn btn-small btn-secondary">Modifier</a>

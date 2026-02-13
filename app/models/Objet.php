@@ -456,4 +456,50 @@ class Objet
         return $newObjetId;
     }
 
+    public function getPrixMinPourcent(int $idObjet, int $pourcent): float
+    {
+        $statement = $this->db->runQuery(
+            'SELECT prix_estime FROM objets WHERE id = ?',
+            [$idObjet]
+        );
+        $objet = $statement->fetch();
+        if (!$objet || !isset($objet['prix_estime']) || $objet['prix_estime'] === null) {
+            return 0.0;
+        }
+        return max(0, $objet['prix_estime'] * (1 - $pourcent / 100));
+    }
+    
+    public function getPrixMaxPourcent(int $idObjet, int $pourcent): float
+    {
+        $statement = $this->db->runQuery(
+            'SELECT prix_estime FROM objets WHERE id = ?',
+            [$idObjet]
+        );
+        $objet = $statement->fetch();
+        if (!$objet || !isset($objet['prix_estime']) || $objet['prix_estime'] === null) {
+            return 0.0;
+        }
+        return $objet['prix_estime'] * (1 + $pourcent / 100);
+    }
+
+    public function getObjetsByPourcent($idObjet,$pourcent) : array {
+        $statement = $this->db->runQuery(
+            'SELECT o.id, o.title, o.description, o.id_proprietaire, o.id_categorie,
+                    o.prix_estime, o.qtt, o.created_at AS objet_created_at,
+                    c.name AS categorie,
+                    (SELECT i.image_path FROM images i WHERE i.id_objet = o.id ORDER BY i.created_at ASC, i.id ASC LIMIT 1) AS first_image,
+                    u.username AS nomProprietaire
+             FROM objets o
+             LEFT JOIN categories c ON o.id_categorie = c.id
+             JOIN users u ON u.id = o.id_proprietaire
+             WHERE o.prix_estime BETWEEN ? AND ? AND o.id != ?',
+            [
+                $this->getPrixMinPourcent($idObjet, $pourcent),
+                $this->getPrixMaxPourcent($idObjet, $pourcent),
+                $idObjet
+            ]
+        );
+        return $statement->fetchAll() ?: [];
+    }
+
 }

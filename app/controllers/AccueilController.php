@@ -36,11 +36,19 @@ class AccueilController
         // Récupérer l'ID de l'utilisateur connecté depuis la session
         $idUser = (int) ($_SESSION['user_id'] ?? 0);
 
-         // Debug
-         error_log("getAllObject: categorieId=$categorieId, search='$search', idUser=$idUser");
+        // Vérifier si un filtrage par pourcentage est demandé
+        $objetId = (int) ($this->app->request()->query->objetId ?? 0);
+        $pourcent = (int) ($this->app->request()->query->pourcent ?? 0);
 
+         // Debug
+         error_log("getAllObject: categorieId=$categorieId, search='$search', idUser=$idUser, objetId=$objetId, pourcent=$pourcent");
+
+        // Filtrage par pourcentage si les paramètres sont présents
+        if ($objetId > 0 && in_array($pourcent, [10, 20])) {
+            $objets = $this->objetModel->getObjetsByPourcent($objetId, $pourcent);
+        } 
         // Filtrage selon catégorie et recherche
-        if ($categorieId > 0 && $search !== '') {
+        elseif ($categorieId > 0 && $search !== '') {
             $objets = $this->objetModel->searchByCategoryAndTitle($categorieId, $search, $idUser);
         } elseif ($categorieId > 0) {
             $objets = $this->objetModel->getByCategorieId($categorieId, $idUser);
@@ -220,6 +228,7 @@ public function insertEchange(): void
     $_SESSION['success_message'] = 'Votre demande d\'échange a été envoyée avec succès !';
     
     $this->app->redirect('/accueil/accueil');
+
 }
 
 }
